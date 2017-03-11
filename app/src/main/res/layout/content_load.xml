@@ -4,30 +4,45 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorHazel"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="uk.ac.cam.km662.hazel.Load"
     tools:showIn="@layout/activity_load">
 
     <ImageView
-        android:layout_width="110dp"
-        android:layout_height="132dp"
+        android:layout_width="152dp"
+        android:layout_height="184dp"
         android:src="@drawable/hazelnut2"
-        tools:layout_editor_absoluteY="363dp"
-        tools:layout_editor_absoluteX="23dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="0.498"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:layout_editor_absoluteY="137dp" />
 
-    <ImageView
-        android:layout_width="174dp"
-        android:layout_height="182dp"
-        android:src="@drawable/target"
-        tools:layout_editor_absoluteY="29dp"
-        tools:layout_editor_absoluteX="204dp" />
+
+
 
     <TextView
-        android:layout_width="166dp"
-        android:layout_height="60dp"
-        android:text="Drag the nut"
+        android:layout_width="196dp"
+        android:layout_height="56dp"
+        android:text="This is NUTS!"
+        android:textStyle="bold"
         android:textSize="30dp"
-        tools:layout_editor_absoluteY="16dp"
-        tools:layout_editor_absoluteX="16dp" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="0.018"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintHorizontal_bias="0.506"
+        tools:layout_editor_absoluteY="14dp" />
 
 </android.support.constraint.ConstraintLayout>

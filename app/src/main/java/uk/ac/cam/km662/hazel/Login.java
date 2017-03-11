@@ -1,6 +1,8 @@
 package uk.ac.cam.km662.hazel;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,8 +17,11 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
+import java.util.Arrays;
 
 public class Login extends AppCompatActivity {
 
@@ -30,13 +35,15 @@ public class Login extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
+        loginButton.setReadPermissions("user_friends");
+        loginButton.setReadPermissions("user_events");
+        loginButton.setReadPermissions("user_location");
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
+        //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
-
 
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -58,6 +65,11 @@ public class Login extends AppCompatActivity {
 
             }
         });
+
+        // Set permissions
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "user_events", "user_location"));
+
+
     }
 
 
