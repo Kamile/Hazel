@@ -126,7 +126,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                             {
                                 JSONObject obj = result.getJSONObject(i);
                                 JSONObject location = obj.getJSONObject("place").getJSONObject("location");
-                                Event event = new Event(obj.getString("id"), location.getDouble("latitude"), location.getDouble("longitude"));
+                                Event event = new Event(obj.getString("id"), obj.getString("name"),
+                                        location.getDouble("latitude"), location.getDouble("longitude"),
+                                        obj.getString("start_time"));
                                 events.add(event);
                                 System.out.println(events);
                             }
