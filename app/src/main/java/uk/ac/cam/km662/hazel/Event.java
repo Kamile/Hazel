@@ -21,7 +21,5 @@ public class Event {
         return this.longitude;
     }
 
-    protected String getLatitude(){
-        return this.latitude;
-    }
+    protected String getLatitude() {return this.latitude; }
 }
