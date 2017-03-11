@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="uk.ac.cam.km662.hazel.Load"
+    tools:showIn="@layout/activity_load">
+
+    <ImageView
+        android:layout_width="110dp"
+        android:layout_height="132dp"
+        android:src="@drawable/hazelnut2"
+        tools:layout_editor_absoluteY="363dp"
+        tools:layout_editor_absoluteX="23dp" />
+
+    <ImageView
+        android:layout_width="174dp"
+        android:layout_height="182dp"
+        android:src="@drawable/target"
+        tools:layout_editor_absoluteY="29dp"
+        tools:layout_editor_absoluteX="204dp" />
+
+    <TextView
+        android:layout_width="166dp"
+        android:layout_height="60dp"
+        android:text="Drag the nut"
+        android:textSize="30dp"
+        tools:layout_editor_absoluteY="16dp"
+        tools:layout_editor_absoluteX="16dp" />
+
+</android.support.constraint.ConstraintLayout>
