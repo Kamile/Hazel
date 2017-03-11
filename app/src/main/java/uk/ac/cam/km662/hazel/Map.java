@@ -1,32 +1,20 @@
 package uk.ac.cam.km662.hazel;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.view.View;
-import android.widget.TextView;
 
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphRequestAsyncTask;
-import com.facebook.GraphRequestBatch;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -64,7 +52,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
@@ -74,7 +61,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
             // Show rationale and request permission.
         }
 
-
+        final ArrayList<Event> events = new ArrayList<Event>();
+        getEvents(events);
         //Add markers for all events in user's location, radius 10km
 //        // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
@@ -82,10 +70,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    protected ArrayList<String> getEvents() {
-        String url = "/me?events";
-        final ArrayList<String> data = new ArrayList<String>();
-
+    protected void getEvents(final ArrayList<Event> events) {
+        String url = "/me/events";
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 url,
@@ -93,16 +79,21 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
+                        JSONObject jObj = response.getJSONObject();
                         try {
-                            JSONObject jObj = response.getJSONObject();
-                            String userID = jObj.getString("id");
-
+                            JSONArray result = jObj.getJSONArray("data");
+                            for(int i=0;i<result.length();i++)
+                            {
+                                JSONObject obj = result.getJSONObject(i);
+                                JSONObject location = obj.getJSONObject("place").getJSONObject("location");
+                                Event event = new Event(obj.getString("id"), location.getString("latitude"), location.getString("longitude"));
+                                events.add(event);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }
         ).executeAsync();
-        return data;
     }
 }

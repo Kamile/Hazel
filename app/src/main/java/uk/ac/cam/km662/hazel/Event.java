@@ -1,58 +1,27 @@
 package uk.ac.cam.km662.hazel;
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
+/**
+ * Created by singhaniasnigdha on 11/3/2017.
+ */
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
-import com.facebook.HttpMethod;
+public class Event {
+    private String id, latitude, longitude;
 
-public class Event extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        Bundle extras = this.getIntent().getExtras();
-        String eventID = null;
-        if(extras != null){
-            eventID = extras.getString("eventID");
-        }
-        if(isValid(eventID))
-            viewEventDetails(eventID);
+    protected Event(String id, String latitude, String longitude){
+        this.id = id;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    private boolean isValid(String eventID){
-        return eventID != null;
+    protected String getID(){
+        return this.id;
     }
 
-    protected void viewEventDetails(final String eventID){
+    protected String getLongitude(){
+        return this.longitude;
+    }
 
-        String url = "https://www.facebook.com/events/"+eventID+"/";
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
-
-//        new GraphRequest(
-//                AccessToken.getCurrentAccessToken(),
-//                eventID,
-//                null,
-//                HttpMethod.GET,
-//                new GraphRequest.Callback() {
-//                    public void onCompleted(GraphResponse response) {
-//
-//                    }
-//                }
-//        ).executeAsync();
+    protected String getLatitude(){
+        return this.latitude;
     }
 }
