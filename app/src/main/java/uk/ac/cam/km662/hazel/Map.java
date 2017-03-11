@@ -1,19 +1,22 @@
 package uk.ac.cam.km662.hazel;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
-import android.view.View;
-import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -23,10 +26,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
-import com.facebook.GraphRequestAsyncTask;
-import com.facebook.GraphRequestBatch;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,11 +39,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Map extends FragmentActivity implements OnMapReadyCallback {
+public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    final int MY_LOCATION_REQUEST_CODE = 25;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +55,15 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        getData();
+        // Create an instance of GoogleAPIClient.
+        if (mGoogleApiClient == null) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+
     }
 
     /**
@@ -66,14 +79,25 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
-            //mMap.moveCamera(CameraUpdateFactory.newLatLng(/* user location */));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            if (mLastLocation != null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(45));
+            }
+
         } else {
             // Show rationale and request permission.
+        }
+
+        final ArrayList<Event> events = new ArrayList<Event>();
+        getEvents(events);
+
+        for (int i=0; i< events.size(); i++) {
+            Event event = events.get(i);
+            LatLng location = new LatLng(event.getLatitude(), event.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(location).title("Event"));
         }
 
 
@@ -84,9 +108,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    private ArrayList<String> getFriends(String userID) {
-        final ArrayList<String> friends = new ArrayList<String>();
-        String url = "/" + userID + "/friends";
+    protected void getEvents(final ArrayList<Event> events) {
+        String url = "/me/events";
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 url,
@@ -94,62 +117,65 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
-//                        try {
                         JSONObject jObj = response.getJSONObject();
-//                            String userID = jObj.getString("id");
-                        System.out.println(response);
-//
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-                    }
-                }
-        ).executeAsync();
-        return friends;
-    }
-
-    private ArrayList<String> getEvents(String userID) {
-        final ArrayList<String> events = new ArrayList<String>();
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/" + userID + "/events",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-
-                    }
-                }
-        ).executeAsync();
-
-        return events;
-    }
-
-    protected ArrayList<ArrayList<String>> getData() {
-        String url = "/me?";
-        final ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                url,
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
                         try {
-                            JSONObject jObj = response.getJSONObject();
-                            String userID = jObj.getString("id");
-                            ArrayList<String> friends = getFriends(userID);
-//                            ArrayList<String> events = getEvents(userID);
-//                            data.add(friends);
-//                            data.add(events);
-
+                            JSONArray result = jObj.getJSONArray("data");
+                            for(int i=0;i<result.length();i++)
+                            {
+                                JSONObject obj = result.getJSONObject(i);
+                                JSONObject location = obj.getJSONObject("place").getJSONObject("location");
+                                Event event = new Event(obj.getString("id"), location.getDouble("latitude"), location.getDouble("longitude"));
+                                events.add(event);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
                     }
                 }
         ).executeAsync();
-        return data;
     }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            // Move camera to last known location
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    protected void onStart() {
+        mGoogleApiClient.connect();
+        super.onStart();
+    }
+
+    protected void onStop() {
+        mGoogleApiClient.disconnect();
+        super.onStop();
+    }
+
+
+
 }
