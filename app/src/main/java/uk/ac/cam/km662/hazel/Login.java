@@ -35,7 +35,6 @@ public class Login extends AppCompatActivity {
         //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
 
-
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -43,6 +42,7 @@ public class Login extends AppCompatActivity {
                 // declined permissions
                 Intent intent = new Intent(Login.this, Map.class);
                 startActivity(intent);
+                ProfilePull.getProfile();
             }
 
             @Override
