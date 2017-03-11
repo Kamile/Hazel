@@ -43,11 +43,14 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_map);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        getData();
     }
 
     /**
@@ -83,7 +86,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 
     private ArrayList<String> getFriends(String userID) {
         final ArrayList<String> friends = new ArrayList<String>();
-        String url = "/804644016239419/friends";
+        String url = "/" + userID + "/friends";
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 url,
