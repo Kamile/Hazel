@@ -1,6 +1,8 @@
 package uk.ac.cam.km662.hazel;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -33,40 +35,15 @@ public class Login extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
         loginButton.setReadPermissions("user_friends");
         loginButton.setReadPermissions("user_events");
+        loginButton.setReadPermissions("user_location");
 
         //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
-
-
-        // If user is already logged in, take them to the Map activity
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                // Login succeeds so we have AccessToken and most recently granted or
-                // declined permissions
-                Intent intent = new Intent(Login.this, Map.class);
-                startActivity(intent);
-            }
-
-            @Override
-            public void onCancel() {
-
-            }
-
-            @Override
-            public void onError(FacebookException e) {
-
-            }
-        });
-
-
-
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
-
 
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
@@ -88,6 +65,11 @@ public class Login extends AppCompatActivity {
 
             }
         });
+
+        // Set permissions
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "user_events", "user_location"));
+
+
     }
 
 
