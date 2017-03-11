@@ -49,8 +49,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        getData();
     }
 
     /**
@@ -84,50 +82,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    private ArrayList<String> getFriends(String userID) {
-        final ArrayList<String> friends = new ArrayList<String>();
-        String url = "/" + userID + "/friends";
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                url,
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-//                        try {
-                        JSONObject jObj = response.getJSONObject();
-//                            String userID = jObj.getString("id");
-                        System.out.println(response);
-//
-//                        } catch (JSONException e) {
-//                            e.printStackTrace();
-//                        }
-                    }
-                }
-        ).executeAsync();
-        return friends;
-    }
-
-    private ArrayList<String> getEvents(String userID) {
-        final ArrayList<String> events = new ArrayList<String>();
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/" + userID + "/events",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-
-                    }
-                }
-        ).executeAsync();
-
-        return events;
-    }
-
-    protected ArrayList<ArrayList<String>> getData() {
-        String url = "/me?";
-        final ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+    protected ArrayList<String> getEvents() {
+        String url = "/me?events";
+        final ArrayList<String> data = new ArrayList<String>();
 
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
@@ -139,10 +96,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
                         try {
                             JSONObject jObj = response.getJSONObject();
                             String userID = jObj.getString("id");
-                            ArrayList<String> friends = getFriends(userID);
-//                            ArrayList<String> events = getEvents(userID);
-//                            data.add(friends);
-//                            data.add(events);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
