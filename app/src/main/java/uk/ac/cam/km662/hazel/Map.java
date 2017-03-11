@@ -50,10 +50,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
     }
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -85,8 +81,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-<<<<<<< Updated upstream
-    private ArrayList<String> getFriends(String userID){
+    private ArrayList<String> getFriends(String userID) {
         final ArrayList<String> friends = new ArrayList<String>();
         String url = "/804644016239419/friends";
         new GraphRequest(
@@ -110,11 +105,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         return friends;
     }
 
-    private ArrayList<String> getEvents(String userID){
+    private ArrayList<String> getEvents(String userID) {
         final ArrayList<String> events = new ArrayList<String>();
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                "/"+userID+"/events",
+                "/" + userID + "/events",
                 null,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
@@ -127,7 +122,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         return events;
     }
 
-    protected ArrayList<ArrayList<String>> getData(){
+    protected ArrayList<ArrayList<String>> getData() {
         String url = "/me?";
         final ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
@@ -154,29 +149,4 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         ).executeAsync();
         return data;
     }
-=======
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == MY_LOCATION_REQUEST_CODE) {
-            if (permissions.length == 1 &&
-                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    ActivityCompat#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for ActivityCompat#requestPermissions for more details.
-                    return;
-                }
-                mMap.setMyLocationEnabled(true);
-            } else {
-                // Permission was denied. Display an error message.
-            }
-        }
-
->>>>>>> Stashed changes
-
 }
