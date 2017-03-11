@@ -16,6 +16,7 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
@@ -42,7 +43,6 @@ public class Login extends AppCompatActivity {
         //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
 
-
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -50,6 +50,7 @@ public class Login extends AppCompatActivity {
                 // declined permissions
                 Intent intent = new Intent(Login.this, Map.class);
                 startActivity(intent);
+                ProfilePull.getProfile();
             }
 
             @Override
