@@ -20,12 +20,14 @@
         android:layout_height="182dp"
         android:src="@drawable/target"
         tools:layout_editor_absoluteY="29dp"
-        tools:layout_editor_absoluteX="204dp" />
+        tools:layout_editor_absoluteX="204dp"
+        android:id="@+id/imageView"
+        android:layout_marginLeft="0dp" />
 
     <TextView
-        android:layout_width="166dp"
-        android:layout_height="60dp"
-        android:text="Drag the nut"
+        android:layout_width="175dp"
+        android:layout_height="86dp"
+        android:text="This is NUTS!"
         android:textSize="30dp"
         tools:layout_editor_absoluteY="16dp"
         tools:layout_editor_absoluteX="16dp" />
