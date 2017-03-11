@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -44,12 +45,28 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    final ArrayList<Event> events = new ArrayList<Event>();
+
+    private FloatingActionButton settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_map);
+
+        // Get View for button
+        settings = (FloatingActionButton) findViewById(R.id.settings);
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Open up settings", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -84,55 +101,66 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             mMap.setMyLocationEnabled(true);
             if (mLastLocation != null) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
-                mMap.animateCamera(CameraUpdateFactory.zoomTo(45));
+                mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
             }
 
         } else {
             // Show rationale and request permission.
         }
 
-        final ArrayList<Event> events = new ArrayList<Event>();
-        getEvents(events);
+        // get user's events and plot their locations on map
+        getEvents();
 
-        for (int i=0; i< events.size(); i++) {
-            Event event = events.get(i);
-            LatLng location = new LatLng(event.getLatitude(), event.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(location).title("Event"));
-        }
-
-
-        //Add markers for all events in user's location, radius 10km
-//        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    protected void getEvents(final ArrayList<Event> events) {
+    protected void getEvents() {
         String url = "/me/events";
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                url,
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        JSONObject jObj = response.getJSONObject();
-                        try {
-                            JSONArray result = jObj.getJSONArray("data");
-                            for(int i=0;i<result.length();i++)
-                            {
-                                JSONObject obj = result.getJSONObject(i);
-                                JSONObject location = obj.getJSONObject("place").getJSONObject("location");
-                                Event event = new Event(obj.getString("id"), location.getDouble("latitude"), location.getDouble("longitude"));
-                                events.add(event);
+        final String[] afterString = {""};  // will contain the next page cursor
+        final Boolean[] noData = {false};   // stop when there is no after cursor
+
+        do {
+            Bundle params = new Bundle();
+            params.putString("after", afterString[0]);
+            new GraphRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    url,
+                    params,
+                    HttpMethod.GET,
+                    new GraphRequest.Callback() {
+                        public void onCompleted(GraphResponse response) {
+                            System.out.println("EVENT _______ " + response);
+                            JSONObject jObj = response.getJSONObject();
+                            try {
+                                JSONArray result = jObj.getJSONArray("data");
+                                for (int i = 0; i < result.length(); i++) {
+                                    JSONObject obj = result.getJSONObject(i);
+                                    JSONObject location = obj.getJSONObject("place").getJSONObject("location");
+                                    Event event = new Event(obj.getString("id"), obj.getString("name"),
+                                            location.getDouble("latitude"), location.getDouble("longitude"),
+                                            obj.getString("start_time"));
+                                    events.add(event);
+
+                                    LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
+                                    mMap.addMarker(new MarkerOptions().position(location2).title("Event"));
+
+                                }
+
+                                if (!jObj.isNull("paging")) {
+                                    JSONObject paging = jObj.getJSONObject("paging");
+                                    JSONObject cursors = paging.getJSONObject("cursors");
+                                    if (!cursors.isNull("after"))
+                                        afterString[0] = cursors.getString("after");
+                                    else
+                                        noData[0] = true;
+                                } else
+                                    noData[0] = true;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
                     }
-                }
-        ).executeAsync();
+            ).executeAsync();
+        } while(!noData[0]);
     }
 
     @Override

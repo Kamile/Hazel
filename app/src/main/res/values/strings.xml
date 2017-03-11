@@ -7,4 +7,11 @@
     <string name="fb_login_protocol_scheme">fb195536624266497</string>
     <string name="title_activity_load">Hazel</string>
     <string name="google_maps_key">AIzaSyDgYNrGDpS8Y0Kh_qnH9QMDJpzfJmyzgvg</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="events_only">Events Only</string>
+    <string name="friends_only">Friends Only</string>
+    <string name="all_points">All</string>
+    <string name="action_log_out">Log out</string>
+    
 </resources>
