@@ -5,4 +5,5 @@
     <string name="title_activity_map">Map</string>
     <string name="facebook_app_id">195536624266497</string>
     <string name="fb_login_protocol_scheme">fb195536624266497</string>
+    <string name="title_activity_load">Load</string>
 </resources>

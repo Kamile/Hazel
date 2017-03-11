@@ -13,7 +13,4 @@
     tools:context="uk.ac.cam.km662.hazel.Login"
     tools:showIn="@layout/activity_login">
 
-
-    
-
 </RelativeLayout>

@@ -60,7 +60,13 @@
 
         <activity
             android:name=".Map"
-            android:label="@string/title_activity_map"></activity>
+            android:label="@string/title_activity_map"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".Load"
+            android:label="@string/title_activity_load"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>
