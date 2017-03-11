@@ -44,6 +44,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    final ArrayList<Event> events = new ArrayList<Event>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +92,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             // Show rationale and request permission.
         }
 
-        final ArrayList<Event> events = new ArrayList<Event>();
-        getEvents(events);
 
+        getEvents();
+        System.out.println(events.size());
         for (int i=0; i< events.size(); i++) {
             Event event = events.get(i);
             LatLng location = new LatLng(event.getLatitude(), event.getLongitude());
@@ -108,7 +109,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    protected void getEvents(final ArrayList<Event> events) {
+    protected void getEvents() {
         String url = "/me/events";
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
@@ -117,6 +118,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
                     public void onCompleted(GraphResponse response) {
+                        System.out.println("EVENT _______ " + response);
                         JSONObject jObj = response.getJSONObject();
                         try {
                             JSONArray result = jObj.getJSONArray("data");
@@ -126,6 +128,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                                 JSONObject location = obj.getJSONObject("place").getJSONObject("location");
                                 Event event = new Event(obj.getString("id"), location.getDouble("latitude"), location.getDouble("longitude"));
                                 events.add(event);
+                                System.out.println(events);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
