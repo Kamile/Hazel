@@ -111,33 +111,48 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
     protected void getEvents() {
         String url = "/me/events";
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                url,
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                        System.out.println("EVENT _______ " + response);
-                        JSONObject jObj = response.getJSONObject();
-                        try {
-                            JSONArray result = jObj.getJSONArray("data");
-                            for(int i=0;i<result.length();i++)
-                            {
-                                JSONObject obj = result.getJSONObject(i);
-                                JSONObject location = obj.getJSONObject("place").getJSONObject("location");
-                                Event event = new Event(obj.getString("id"), obj.getString("name"),
-                                        location.getDouble("latitude"), location.getDouble("longitude"),
-                                        obj.getString("start_time"));
-                                events.add(event);
-                                System.out.println(events);
+        final String[] afterString = {""};  // will contain the next page cursor
+        final Boolean[] noData = {false};   // stop when there is no after cursor
+
+        do {
+            new GraphRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    url,
+                    null,
+                    HttpMethod.GET,
+                    new GraphRequest.Callback() {
+                        public void onCompleted(GraphResponse response) {
+                            System.out.println("EVENT _______ " + response);
+                            JSONObject jObj = response.getJSONObject();
+                            try {
+                                JSONArray result = jObj.getJSONArray("data");
+                                for (int i = 0; i < result.length(); i++) {
+                                    JSONObject obj = result.getJSONObject(i);
+                                    JSONObject location = obj.getJSONObject("place").getJSONObject("location");
+                                    Event event = new Event(obj.getString("id"), obj.getString("name"),
+                                            location.getDouble("latitude"), location.getDouble("longitude"),
+                                            obj.getString("start_time"));
+                                    events.add(event);
+                                    System.out.println(events);
+                                }
+
+                                if(!jObj.isNull("paging")) {
+                                    JSONObject paging = jObj.getJSONObject("paging");
+                                    JSONObject cursors = paging.getJSONObject("cursors");
+                                    if (!cursors.isNull("after"))
+                                        afterString[0] = cursors.getString("after");
+                                    else
+                                        noData[0] = true;
+                                }
+                                else
+                                    noData[0] = true;
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
                     }
-                }
-        ).executeAsync();
+            ).executeAsync();
+        }while(!noData[0]);
     }
 
     @Override
