@@ -21,10 +21,10 @@ public class Load extends AppCompatActivity {
             public void run() {
                /* Create an Intent that will start the Login Activity. */
                 Intent intent = new Intent(Load.this, Login.class);
-                Load.this.startActivity(intent);
-                Load.this.finish();
+                startActivity(intent);
+                finish();
             }
-        }, 2000);
+        }, 3000);
     }
 
 
