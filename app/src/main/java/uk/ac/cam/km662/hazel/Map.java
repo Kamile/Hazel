@@ -93,6 +93,14 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
         final ArrayList<Event> events = new ArrayList<Event>();
         getEvents(events);
+
+        for (int i=0; i< events.size(); i++) {
+            Event event = events.get(i);
+            LatLng location = new LatLng(event.getLatitude(), event.getLongitude());
+            mMap.addMarker(new MarkerOptions().position(location).title("Event"));
+        }
+
+
         //Add markers for all events in user's location, radius 10km
 //        // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
