@@ -33,8 +33,7 @@ public class Login extends AppCompatActivity {
         loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this);
+        //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
 
 
