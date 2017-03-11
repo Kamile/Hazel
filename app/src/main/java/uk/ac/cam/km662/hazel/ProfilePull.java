@@ -11,7 +11,6 @@ import com.facebook.HttpMethod;
 
 public class ProfilePull {
     public static void getProfile(){
-        String id = "373723942815379";
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 "/me/friends",
