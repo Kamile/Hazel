@@ -37,8 +37,6 @@ import java.util.ArrayList;
 public class Map extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private Location mLastLocation;
-    final int MY_LOCATION_REQUEST_CODE = 25;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +66,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
             //mMap.moveCamera(CameraUpdateFactory.newLatLng(/* user location */));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+            //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
         } else {
             // Show rationale and request permission.
         }
