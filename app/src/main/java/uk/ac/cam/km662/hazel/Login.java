@@ -15,8 +15,11 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+
+import java.util.Arrays;
 
 public class Login extends AppCompatActivity {
 
@@ -32,9 +35,37 @@ public class Login extends AppCompatActivity {
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
         loginButton.setReadPermissions("email");
+        loginButton.setReadPermissions("user_friends");
+        loginButton.setReadPermissions("user_events");
 
         //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
+
+
+        // If user is already logged in, take them to the Map activity
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // Login succeeds so we have AccessToken and most recently granted or
+                // declined permissions
+                Intent intent = new Intent(Login.this, Map.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+
+            }
+        });
+
+
+
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile"));
 
 
 
