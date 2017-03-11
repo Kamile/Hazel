@@ -5,9 +5,10 @@ package uk.ac.cam.km662.hazel;
  */
 
 public class Event {
-    private String id, latitude, longitude;
+    private String id;
+    double latitude, longitude;
 
-    protected Event(String id, String latitude, String longitude){
+    protected Event(String id, double latitude, double longitude){
         this.id = id;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -17,11 +18,11 @@ public class Event {
         return this.id;
     }
 
-    protected String getLongitude(){
+    protected double getLongitude(){
         return this.longitude;
     }
 
-    protected String getLatitude(){
+    protected double getLatitude(){
         return this.latitude;
     }
 }
