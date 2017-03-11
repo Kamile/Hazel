@@ -13,8 +13,8 @@ public class Load extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_load);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -26,6 +26,10 @@ public class Load extends AppCompatActivity {
             }
         }, 2000);
     }
+
+
+
+
 
 
 
