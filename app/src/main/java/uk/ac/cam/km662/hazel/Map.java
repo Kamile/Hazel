@@ -115,10 +115,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         final Boolean[] noData = {false};   // stop when there is no after cursor
 
         do {
+            Bundle params = new Bundle();
+            params.putString("after", afterString[0]);
             new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
                     url,
-                    null,
+                    params,
                     HttpMethod.GET,
                     new GraphRequest.Callback() {
                         public void onCompleted(GraphResponse response) {
