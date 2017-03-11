@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -37,6 +38,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private Location mLastLocation;
+    final int MY_LOCATION_REQUEST_CODE = 25;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    private ArrayList<String> getFriends(String userID){
+    private ArrayList<String> getFriends(String userID) {
         final ArrayList<String> friends = new ArrayList<String>();
         String url = "/804644016239419/friends";
         new GraphRequest(
@@ -103,11 +105,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         return friends;
     }
 
-    private ArrayList<String> getEvents(String userID){
+    private ArrayList<String> getEvents(String userID) {
         final ArrayList<String> events = new ArrayList<String>();
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
-                "/"+userID+"/events",
+                "/" + userID + "/events",
                 null,
                 HttpMethod.GET,
                 new GraphRequest.Callback() {
@@ -120,7 +122,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         return events;
     }
 
-    protected ArrayList<ArrayList<String>> getData(){
+    protected ArrayList<ArrayList<String>> getData() {
         String url = "/me?";
         final ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
@@ -147,5 +149,4 @@ public class Map extends FragmentActivity implements OnMapReadyCallback {
         ).executeAsync();
         return data;
     }
-
 }

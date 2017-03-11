@@ -37,10 +37,7 @@ public class Login extends AppCompatActivity {
 
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions("email");
-        loginButton.setReadPermissions("user_friends");
-        loginButton.setReadPermissions("user_events");
-        loginButton.setReadPermissions("user_location");
+        loginButton.setReadPermissions(Arrays.asList("public_profile", "user_friends", "user_events", "user_location"));
 
         //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
@@ -71,6 +68,8 @@ public class Login extends AppCompatActivity {
 
 
     }
+
+
 
 
     @Override
