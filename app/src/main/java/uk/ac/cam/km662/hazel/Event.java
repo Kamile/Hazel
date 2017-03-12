@@ -25,6 +25,10 @@ public class Event {
         return this.id;
     }
 
+    protected String getName(){
+        return this.name;
+    }
+
     protected double getLongitude(){
         return this.longitude;
     }
