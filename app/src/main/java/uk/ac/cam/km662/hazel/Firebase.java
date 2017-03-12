@@ -38,8 +38,7 @@ public class Firebase {
                 String id = dataSnapshot.getKey();
                 double latitude = (Long)((HashMap)dataSnapshot.getValue()).get("latitude");
                 double longitude = (Long)((HashMap)dataSnapshot.getValue()).get("longitude");
-                HashMap loc = (HashMap) dataSnapshot.getValue();
-                SharedObj.setObj(id, latitude, longitude);
+                Friend.setObj(id, latitude, longitude);
             }
 
             @Override

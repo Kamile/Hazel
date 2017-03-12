@@ -56,10 +56,14 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     final ArrayList<Event> events = new ArrayList<Event>();
+    private Firebase database;
 
     private DrawerLayout mDrawerLayout;
     private String[] mOptions;
     private ListView mDrawerList;
+
+    private Boolean showFriends = true;
+    private Boolean showEvents = true;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
         setContentView(R.layout.activity_map);
 
+        // Create instance of database
+        database = new Firebase();
 
         // Build Drawer for settings
         mOptions = getResources().getStringArray(R.array.nav_item_list);
@@ -85,11 +91,13 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 switch(position) {
                     case 0:
                         System.out.println("Events Only..");
-                        displayNearbyEvents();
+                        showFriends = false;
+                        showEvents = true;
                         break;
                     case 1:
                         System.out.println("Friends Only..");
-                        //displayNearbyFriends();
+                        showFriends = true;
+                        showEvents = false;
                         break;
                     case 3:
                         System.out.println("Logout");
@@ -97,10 +105,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                         break;
                     default:
                         System.out.println("Events & Friends..");
-                        displayNearbyEvents();
-                        //displayNearbyFriends();
+                        showFriends = true;
+                        showEvents = true;
                         break;
                 }
+                displayNearbyEvents();
             }
         });
 
@@ -174,10 +183,15 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                             if (event.isValidEvent()) {
                                 events.add(event);
                                 LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
+
+
+
+
                                 mMap.addMarker(new MarkerOptions()
                                         .position(coordinates)
                                         .title(event.getName() + "///" + event.getID())
                                         .snippet(new SimpleDateFormat("EEE MMM d yyyy, K:mm a").format(event.getTime()))
+                                        
 
                                 );
                                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -222,19 +236,43 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             ).executeAsync();
     }
 
+    protected void getFriends(String id) {
+        database.retrieveFriendLocation(id);
+        Friend friend = new Friend();
+        JSONObject friendData = friend.getObj();
+        try {
+            LatLng coordinates = new LatLng((double)friendData.get("latitude"),(double)friendData.get("longitude"));
+            mMap.addMarker(new MarkerOptions()
+                    .position(coordinates)
+                    .title("A friend") //TODO -- get name + photo
+            );
+
+        } catch (JSONException e) {
+            System.err.println("Failure to real JSON object for friend's location. ");
+        }
+
+
+
+    }
+
     protected void displayNearbyEvents() {
         getEvents("me");
         JSONArray friendList = null;
         while(friendList == null) {
-            System.out.print("**WHILE**");
             friendList = ProfilePull.getFriends();
         }
-        System.out.println("&&&");
         for(int index=0; index<friendList.length(); index++){
             try {
                 JSONObject friend = friendList.getJSONObject(index);
                 String id = friend.getString("id");
-                getEvents(id);
+                if (showEvents) {
+                    getEvents(id);
+                }
+
+                if (showFriends) {
+                    getFriends(id);
+                }
+
             } catch(JSONException e){
                 e.printStackTrace();
             }
