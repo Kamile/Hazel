@@ -250,6 +250,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             mMap.addMarker(new MarkerOptions()
                     .position(coordinates)
                     .title("A friend") //TODO -- get name + photo
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin_friend))
             );
         } catch (JSONException e) {
             System.err.println("Failure to read JSON object for friend's location. ");
