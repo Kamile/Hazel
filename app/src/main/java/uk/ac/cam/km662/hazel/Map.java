@@ -162,6 +162,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         }
         // get user's events and plot their locations on map
         displayNearbyEvents();
+        displayNearbyCheckIns();
     }
 
     final GraphRequest.Callback graphCallback = new GraphRequest.Callback(){
