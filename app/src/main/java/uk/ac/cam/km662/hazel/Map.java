@@ -160,8 +160,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         displayNearbyCheckIns();
     }
 
-
-
     final GraphRequest.Callback graphCallback = new GraphRequest.Callback(){
         @Override
         public void onCompleted(GraphResponse response) {
@@ -217,8 +215,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-
             GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
             if (nextRequest != null) {
                 nextRequest.setGraphPath(parameters.getString("url"));
@@ -228,9 +224,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             }
         }
     };
-
-
-
 
     protected void getEvents(String id) {
         String url = "/"+id+"/events";
@@ -246,9 +239,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 graphCallback
         ).executeAsync();
     }
-
-
-
 
     protected void getFriends(String id) {
         firebase.retrieveFriendLocation(id);
@@ -293,10 +283,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             Bundle parameters = new Bundle();
             parameters.putString("limit", "10");
             JSONObject jObj = response.getJSONObject();
+            System.out.println("^^^"+jObj);
             try {
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject obj = result.getJSONObject(i);
+
                     if(!obj.isNull("place")) {
                         JSONObject place = obj.getJSONObject("place");
                         if(!place.isNull("location")) {
@@ -304,17 +296,14 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                             final CheckIn event = new CheckIn(obj.getString("name"),
                                     location.getDouble("latitude"), location.getDouble("longitude"));
 
-                            if(checkIns.contains(event)){
-                                CheckIn c = checkIns.get(checkIns.indexOf(event));
-                                c.count++;
-                            } else {
+                            if(! checkIns.contains(event)){
                                 checkIns.add(event);
+                                LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(coordinates)
+                                        .title(event.getName())
+                                );
                             }
-                            LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(coordinates)
-                                    .title(event.getName() + "/n" +"Visits: "+ event.count)
-                            );
                         }
                     }
                 }
@@ -329,11 +318,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 nextRequest.setParameters(parameters);
                 nextRequest.executeAsync();
             }
+            System.out.println("****"+checkIns);
         }
     };
 
     protected void getCheckIns(String id) {
-        String url = "/"+id+"/tagged_places";
+        String url = "/me/tagged_places";
         Bundle parameters = new Bundle();
         parameters.putString("tag_url", url);
         parameters.putString("limit", "10");
@@ -350,19 +340,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
     protected void displayNearbyCheckIns() {
         getCheckIns("me");
-        JSONArray friendList = null;
-        while(friendList == null) {
-            friendList = ProfilePull.getFriends();
-        }
-        for(int index=0; index<friendList.length(); index++){
-            try {
-                JSONObject friend = friendList.getJSONObject(index);
-                String id = friend.getString("id");
-                getCheckIns(id);
-            } catch(JSONException e){
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
