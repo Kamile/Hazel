@@ -27,6 +27,7 @@ public class ProfilePull {
         return ProfilePull.friends;
     }
     public static void getProfile() {
+
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 "/me",

@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
                 System.out.println("profile");
                 ProfilePull.getProfile();
 //                Firebase.updateFriendLocation("1", 2, 3);
-                Firebase.retrieveFriendLocation("1");
+//                Firebase.retrieveFriendLocation("1243513605685789");
             }
 
             @Override

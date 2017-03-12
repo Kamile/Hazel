@@ -33,12 +33,9 @@ public class Firebase {
         database.getReference().child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                System.out.println(dataSnapshot);
-                System.out.println(dataSnapshot.getKey());
                 String id = dataSnapshot.getKey();
-                double latitude = (Long)((HashMap)dataSnapshot.getValue()).get("latitude");
-                double longitude = (Long)((HashMap)dataSnapshot.getValue()).get("longitude");
-                HashMap loc = (HashMap) dataSnapshot.getValue();
+                double latitude = (Double)((HashMap)dataSnapshot.getValue()).get("latitude");
+                double longitude = (Double)((HashMap)dataSnapshot.getValue()).get("longitude");
                 SharedObj.setObj(id, latitude, longitude);
             }
 
