@@ -60,7 +60,14 @@ public class Event {
         return y == date.get(YEAR) && m == date.get(MONTH) && d == date.get(DAY_OF_MONTH);
     }
 
-    protected boolean isValidEvent(Date from, Date to){
+    protected boolean isValidEvent(Calendar from, Calendar to){
         return (from.before(startDate)||from.equals(from)) && (to.after(startDate)||to.equals(startDate));
+    }
+
+    protected boolean isEventThisWeek() {
+        Calendar date = getInstance();
+        Calendar next = getInstance();
+        next.add(Calendar.DATE, 7);
+        return isValidEvent(date, next);
     }
 }
