@@ -263,21 +263,22 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         ).executeAsync();
     }
 
-    public void actualGetFriends(JSONObject friendData) {
+    public void actualGetFriends(JSONObject friendData, String userName) {
         System.out.println("actualGetFriends");
         System.out.println(friendData);
+        System.out.println(userName);
         try {
             LatLng coordinates = new LatLng((double)friendData.get("latitude"),(double)friendData.get("longitude"));
             mMap.addMarker(new MarkerOptions()
                     .position(coordinates)
-                    .title("A friend") //TODO -- get name + photo
+                    .title(userName) //TODO -- get name + photo
             );
         } catch (JSONException e) {
             System.err.println("Failure to read JSON object for friend's location. ");
         }
     }
-    protected void getFriends(String id) {
-        firebase.retrieveFriendLocation(id, this);
+    protected void getFriends(String id, String name) {
+        firebase.retrieveFriendLocation(id, name, this);
     }
 
     protected void displayNearbyEvents() {
@@ -294,7 +295,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     getEvents(id);
                 }
                 if (showFriends) {
-                    getFriends(id);
+                    getFriends(id, friend.getString("name"));
                 }
             } catch(JSONException e){
                 e.printStackTrace();
