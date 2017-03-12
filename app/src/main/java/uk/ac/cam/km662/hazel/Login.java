@@ -44,6 +44,7 @@ public class Login extends AppCompatActivity {
                 startActivity(intent);
                 //TODO: can't get the profile as soon as it returns
                 ProfilePull.getProfile();
+
 //                Firebase.updateFriendLocation("1", 2, 3);
             }
 

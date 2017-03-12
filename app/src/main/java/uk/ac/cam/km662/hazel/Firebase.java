@@ -8,6 +8,8 @@ import android.provider.ContactsContract;
 
 import com.google.firebase.database.*;
 
+import org.json.JSONObject;
+
 public class Firebase {
     public static FirebaseDatabase database = FirebaseDatabase.getInstance();
     public static void tryDB() {
@@ -24,4 +26,17 @@ public class Firebase {
         friendRefLon.setValue(longitude);
     }
 
+    public static void retrieveFriendLocation(String userID) {
+        database.getReference().child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                System.out.println(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.err.println(databaseError);
+            }
+        });
+    }
 }
