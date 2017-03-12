@@ -1,6 +1,7 @@
 package uk.ac.cam.km662.hazel;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.provider.Settings;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.facebook.AccessToken;
@@ -44,7 +47,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -52,26 +57,26 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     final ArrayList<Event> events = new ArrayList<Event>();
+    private HashMap<String, String> eventMappings = new HashMap<String, String>();
+    private Firebase database;
 
     private DrawerLayout mDrawerLayout;
     private String[] mOptions;
     private ListView mDrawerList;
 
-    // Type of data points to display on map -
-    // 0 = Events & Friends,
-    // 1 = Events Only
-    // 2 = Friends Only
-    private int type = 0;
-
+    private Boolean showFriends = true;
+    private Boolean showEvents = true;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_map);
 
+        // Create instance of database
+        database = new Firebase();
 
         // Build Drawer for settings
-
         mOptions = getResources().getStringArray(R.array.nav_item_list);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -84,17 +89,17 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                mMap.clear(); // clear map of markers
                 switch(position) {
-                    //clear map
                     case 0:
                         System.out.println("Events Only..");
-                        type = 1;
-                        //displayNearbyEvents();
+                        showFriends = false;
+                        showEvents = true;
                         break;
                     case 1:
                         System.out.println("Friends Only..");
-                        type = 2;
-                        //displayNearbyFriends();
+                        showFriends = true;
+                        showEvents = false;
                         break;
                     case 3:
                         System.out.println("Logout");
@@ -102,11 +107,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                         break;
                     default:
                         System.out.println("Events & Friends..");
-                        type = 0;
-                        //displayNearbyEvents()
-                        //displayNearbyFriends()
+                        showFriends = true;
+                        showEvents = true;
                         break;
                 }
+                displayNearbyEvents();
             }
         });
 
@@ -163,24 +168,48 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             parameters.putString("limit", "10");
             JSONObject jObj = response.getJSONObject();
             try {
+
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
+
                     JSONObject obj = result.getJSONObject(i);
                     if(!obj.isNull("place")) {
+
                         JSONObject place = obj.getJSONObject("place");
                         String time = null;
-                        if (!obj.isNull("start_time"))
+
+                        if (!obj.isNull("start_time")) {
                             time = obj.getString("start_time");
+                        }
+
                         if(!place.isNull("location")) {
                             JSONObject location = place.getJSONObject("location");
-                            Event event = new Event(obj.getString("id"), obj.getString("name"),
+                            final Event event = new Event(obj.getString("id"), obj.getString("name"),
                                     location.getDouble("latitude"), location.getDouble("longitude"),
                                     time);
 
                             if (event.isValidEvent()) {
                                 events.add(event);
                                 LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
-                                mMap.addMarker(new MarkerOptions().position(coordinates).title("Event"));
+
+
+                                eventMappings.put(event.getName(), event.getID());
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(coordinates)
+                                        .title(event.getName())
+                                        .snippet(new SimpleDateFormat("EEE MMM d yyyy, K:mm a").format(event.getTime()))
+                                        
+
+                                );
+                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                    @Override
+                                    public void onInfoWindowClick(Marker marker) {
+                                        Intent intent = new Intent(getApplicationContext(), EventPage.class);
+                                        String eventID = eventMappings.get(marker.getTitle());
+                                        intent.putExtra("eventID", eventID);
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         }
                     }
@@ -214,19 +243,41 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             ).executeAsync();
     }
 
+    protected void getFriends(String id) {
+        database.retrieveFriendLocation(id);
+        Friend friend = new Friend();
+        JSONObject friendData = friend.getObj();
+        try {
+            LatLng coordinates = new LatLng((double)friendData.get("latitude"),(double)friendData.get("longitude"));
+            mMap.addMarker(new MarkerOptions()
+                    .position(coordinates)
+                    .title("A friend") //TODO -- get name + photo
+            );
+
+        } catch (JSONException e) {
+            System.err.println("Failure to read JSON object for friend's location. ");
+        }
+
+    }
+
     protected void displayNearbyEvents() {
         getEvents("me");
         JSONArray friendList = null;
         while(friendList == null) {
-            System.out.print("**WHILE**");
             friendList = ProfilePull.getFriends();
         }
-        System.out.println("&&&");
         for(int index=0; index<friendList.length(); index++){
             try {
                 JSONObject friend = friendList.getJSONObject(index);
                 String id = friend.getString("id");
-                getEvents(id);
+                if (showEvents) {
+                    getEvents(id);
+                }
+
+                if (showFriends) {
+                    getFriends(id);
+                }
+
             } catch(JSONException e){
                 e.printStackTrace();
             }

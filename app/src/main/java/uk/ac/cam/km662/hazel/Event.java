@@ -2,7 +2,10 @@ package uk.ac.cam.km662.hazel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+
+import static java.util.Calendar.*;
 
 public class Event {
     private String id, name;
@@ -33,6 +36,10 @@ public class Event {
         return this.latitude;
     }
 
+    protected Date getTime() {
+        return this.startDate;
+    }
+
     protected void parseDate(String dateInString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         try {
@@ -45,5 +52,15 @@ public class Event {
     protected boolean isValidEvent(){
         Date now = new Date();
         return now.before(startDate);
+    }
+
+    protected boolean isValidEvent(int y, int m, int d){
+        Calendar date = getInstance();
+        date.setTime(startDate);
+        return y == date.get(YEAR) && m == date.get(MONTH) && d == date.get(DAY_OF_MONTH);
+    }
+
+    protected boolean isValidEvent(Date from, Date to){
+        return (from.before(startDate)||from.equals(from)) && (to.after(startDate)||to.equals(startDate));
     }
 }
