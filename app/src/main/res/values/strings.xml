@@ -17,9 +17,12 @@
 
     <!-- Toolbar titles when navigation menu item is selected -->
     <string-array name="nav_item_list">
-        <item>Events Only</item>
-        <item>Friends Only</item>
-        <item>Events and Friends</item>
+        <item id="type">Events Only</item>
+        <item id="type">Friends Only</item>
+        <item id="type">Events and Friends</item>
+        <item id="time">Today</item>
+        <item id="time">This Week</item>
+        <item id="time">All Time</item>
         <item>Log out</item>
     </string-array>
     
