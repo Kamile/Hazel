@@ -33,6 +33,10 @@ public class Event {
         return this.latitude;
     }
 
+    protected Date getTime() {
+        return this.startDate;
+    }
+
     protected void parseDate(String dateInString) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
         try {
