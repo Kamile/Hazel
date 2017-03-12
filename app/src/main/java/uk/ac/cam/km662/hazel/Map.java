@@ -117,22 +117,24 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         @Override
         public void onCompleted(GraphResponse response) {
             Bundle parameters = new Bundle();
-            parameters.putString("limit", "40");
+            parameters.putString("limit", "10");
             System.out.println("EVENT _______ " + response);
             JSONObject jObj = response.getJSONObject();
             try {
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject obj = result.getJSONObject(i);
-                    JSONObject location = obj.getJSONObject("place").getJSONObject("location");
-                    Event event = new Event(obj.getString("id"), obj.getString("name"),
-                            location.getDouble("latitude"), location.getDouble("longitude"),
-                            obj.getString("start_time"));
+                    if(!obj.isNull("place")) {
+                        JSONObject location = obj.getJSONObject("place").getJSONObject("location");
+                        Event event = new Event(obj.getString("id"), obj.getString("name"),
+                                location.getDouble("latitude"), location.getDouble("longitude"),
+                                obj.getString("start_time"));
 
-                    if(event.isValidEvent()) {
-                        events.add(event);
-                        LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(location2).title("Event"));
+                        if (event.isValidEvent()) {
+                            events.add(event);
+                            LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
+                            mMap.addMarker(new MarkerOptions().position(location2).title("Event"));
+                        }
                     }
                 }
             } catch (JSONException e) {
@@ -152,7 +154,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     protected void getEvents() {
         String url = "/me/events";
         Bundle parameters = new Bundle();
-        parameters.putString("limit", "40");
+        parameters.putString("limit", "10");
 
         new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
