@@ -1,6 +1,7 @@
 package uk.ac.cam.km662.hazel;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.provider.Settings;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -29,6 +31,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import com.facebook.AccessToken;
@@ -44,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -56,13 +60,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private DrawerLayout mDrawerLayout;
     private String[] mOptions;
     private ListView mDrawerList;
-
-    // Type of data points to display on map -
-    // 0 = Events & Friends,
-    // 1 = Events Only
-    // 2 = Friends Only
-    private int type = 0;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +69,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
 
         // Build Drawer for settings
-
         mOptions = getResources().getStringArray(R.array.nav_item_list);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
@@ -84,16 +81,14 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                mMap.clear(); // clear map of markers
                 switch(position) {
-                    //clear map
                     case 0:
                         System.out.println("Events Only..");
-                        type = 1;
-                        //displayNearbyEvents();
+                        displayNearbyEvents();
                         break;
                     case 1:
                         System.out.println("Friends Only..");
-                        type = 2;
                         //displayNearbyFriends();
                         break;
                     case 3:
@@ -102,9 +97,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                         break;
                     default:
                         System.out.println("Events & Friends..");
-                        type = 0;
-                        //displayNearbyEvents()
-                        //displayNearbyFriends()
+                        displayNearbyEvents();
+                        //displayNearbyFriends();
                         break;
                 }
             }
@@ -173,14 +167,28 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                             time = obj.getString("start_time");
                         if(!place.isNull("location")) {
                             JSONObject location = place.getJSONObject("location");
-                            Event event = new Event(obj.getString("id"), obj.getString("name"),
+                            final Event event = new Event(obj.getString("id"), obj.getString("name"),
                                     location.getDouble("latitude"), location.getDouble("longitude"),
                                     time);
 
                             if (event.isValidEvent()) {
                                 events.add(event);
                                 LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
-                                mMap.addMarker(new MarkerOptions().position(coordinates).title("Event"));
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(coordinates)
+                                        .title(event.getName() + "///" + event.getID())
+                                        .snippet(new SimpleDateFormat("EEE MMM d yyyy, K:mm a").format(event.getTime()))
+
+                                );
+                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                    @Override
+                                    public void onInfoWindowClick(Marker marker) {
+                                        Intent intent = new Intent(getApplicationContext(), EventPage.class);
+                                        String eventID = marker.getTitle().split("///")[1];
+                                        intent.putExtra("eventID", eventID);
+                                        startActivity(intent);
+                                    }
+                                });
                             }
                         }
                     }
