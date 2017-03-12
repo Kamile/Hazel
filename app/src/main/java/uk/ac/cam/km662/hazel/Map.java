@@ -9,11 +9,16 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -48,7 +53,15 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private Location mLastLocation;
     final ArrayList<Event> events = new ArrayList<Event>();
 
-    private FloatingActionButton settings;
+    private DrawerLayout mDrawerLayout;
+    private String[] mOptions;
+    private ListView mDrawerList;
+
+    // Type of data points to display on map -
+    // 0 = Events & Friends,
+    // 1 = Events Only
+    // 2 = Friends Only
+    private int type = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,16 +69,46 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
         setContentView(R.layout.activity_map);
 
-        // Get View for button
-        settings = (FloatingActionButton) findViewById(R.id.settings);
-        settings.setOnClickListener(new View.OnClickListener() {
+
+        // Build Drawer for settings
+
+        mOptions = getResources().getStringArray(R.array.nav_item_list);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // Set the adapter for the list view
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mOptions));
+        // Set the list's click listener
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Open up settings", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                switch(position) {
+                    //clear map
+                    case 0:
+                        System.out.println("Events Only..");
+                        type = 1;
+                        //displayNearbyEvents();
+                        break;
+                    case 1:
+                        System.out.println("Friends Only..");
+                        type = 2;
+                        //displayNearbyFriends();
+                        break;
+                    case 3:
+                        System.out.println("Logout");
+                        finish();
+                        break;
+                    default:
+                        System.out.println("Events & Friends..");
+                        type = 0;
+                        //displayNearbyEvents()
+                        //displayNearbyFriends()
+                        break;
+                }
             }
         });
-
 
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -87,8 +130,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
+     * This is where we can add markers or lines, add listeners or move the camera.
      * If Google Play services is not installed on the device, the user will be prompted to install
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
@@ -108,7 +150,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         } else {
             // Show rationale and request permission.
         }
-
         // get user's events and plot their locations on map
         displayNearbyEvents();
     }
@@ -118,7 +159,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         public void onCompleted(GraphResponse response) {
             Bundle parameters = new Bundle();
             parameters.putString("limit", "10");
-            System.out.println("EVENT _______ " + response);
             JSONObject jObj = response.getJSONObject();
             try {
                 JSONArray result = jObj.getJSONArray("data");
@@ -126,7 +166,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     JSONObject obj = result.getJSONObject(i);
                     if(!obj.isNull("place")) {
                         String time = null;
-                        if(!obj.isNull("start_time"))
+                        if (!obj.isNull("start_time"))
                             time = obj.getString("start_time");
                         JSONObject location = obj.getJSONObject("place").getJSONObject("location");
                         Event event = new Event(obj.getString("id"), obj.getString("name"),
@@ -135,8 +175,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
                         if (event.isValidEvent()) {
                             events.add(event);
-                            LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
-                            mMap.addMarker(new MarkerOptions().position(location2).title("Event"));
+                            LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
+                            mMap.addMarker(new MarkerOptions().position(coordinates).title("Event"));
                         }
                     }
                 }
@@ -230,6 +270,10 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         mGoogleApiClient.disconnect();
         super.onStop();
     }
+
+
+
+
 
 
 
