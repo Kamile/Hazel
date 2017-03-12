@@ -292,9 +292,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                         JSONObject place = obj.getJSONObject("place");
                         if(!place.isNull("location")) {
                             JSONObject location = place.getJSONObject("location");
-                            String name = " ";
-                            if(!obj.isNull("name")){
-                                name = obj.getString("name");
+                            String name = "";
+                            if(!place.isNull("name")){
+                                name = place.getString("name");
+                            }
+                            if(!location.isNull("city")){
+                                name += "\n"+location.getString("city")+","+location.getString("country");
                             }
                             CheckIn event = new CheckIn(name,
                                     location.getDouble("latitude"), location.getDouble("longitude"));
