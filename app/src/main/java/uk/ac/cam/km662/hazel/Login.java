@@ -59,7 +59,7 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        // Set permissions
+        // If already logged in, go to Map activity
         LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "user_events", "user_location"));
 
 

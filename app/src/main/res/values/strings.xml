@@ -9,9 +9,18 @@
     <string name="google_maps_key">AIzaSyDgYNrGDpS8Y0Kh_qnH9QMDJpzfJmyzgvg</string>
     <string name="title_activity_main">MainActivity</string>
 
+    <!-- Navigation drawer labels -->
     <string name="events_only">Events Only</string>
     <string name="friends_only">Friends Only</string>
     <string name="all_points">All</string>
     <string name="action_log_out">Log out</string>
+
+    <!-- Toolbar titles when navigation menu item is selected -->
+    <string-array name="nav_item_list">
+        <item>Events Only</item>
+        <item>Friends Only</item>
+        <item>Events and Friends</item>
+        <item>Log out</item>
+    </string-array>
     
 </resources>
