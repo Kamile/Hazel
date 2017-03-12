@@ -115,6 +115,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                         break;
                 }
                 displayNearbyEvents();
+                displayNearbyCheckIns();
             }
         });
 

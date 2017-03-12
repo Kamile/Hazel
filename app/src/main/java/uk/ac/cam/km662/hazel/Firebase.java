@@ -15,12 +15,7 @@ import java.util.HashMap;
 public class Firebase {
     private static String retrieveID;
     public static FirebaseDatabase database = FirebaseDatabase.getInstance();
-    public static void tryDB() {
-        DatabaseReference myRef = Firebase.database.getReference("/users2");
-        System.out.println(myRef);
 
-        myRef.setValue("Hello, World!");
-    }
 
     public static void updateFriendLocation(String userID, double latitude, double longitude) {
         System.out.println("updating values for user " + userID);

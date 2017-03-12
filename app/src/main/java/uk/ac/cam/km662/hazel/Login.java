@@ -28,7 +28,7 @@ public class Login extends AppCompatActivity {
 
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList("public_profile", "user_friends", "user_events", "user_location"));
+        loginButton.setReadPermissions(Arrays.asList("public_profile", "user_friends", "user_events", "user_location", "user_tagged_places", "user_status"));
 
         //Facebook SDK is auto-initialised on Application start
         callbackManager = CallbackManager.Factory.create();
@@ -58,7 +58,7 @@ public class Login extends AppCompatActivity {
         });
 
         // If already logged in, go to Map activity
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "user_events", "user_location"));
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "user_friends", "user_events", "user_location",  "user_tagged_places", "user_status"));
 
 
     }
