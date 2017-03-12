@@ -28,8 +28,6 @@ public class Friend {
     }
 
     public static JSONObject getObj() {
-        System.out.println("getObj");
-        System.out.println(Friend.obj);
         if (Friend.obj.has("url") && Friend.obj.has("id")) {
             try {
                 new GraphRequest(

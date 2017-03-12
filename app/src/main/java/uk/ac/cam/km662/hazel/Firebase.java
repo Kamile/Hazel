@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 public class Firebase {
     private static String retrieveID;
+    private static Map mapPointer;
     public static FirebaseDatabase database = FirebaseDatabase.getInstance();
 
     private DatabaseReference mDatabase;
@@ -23,8 +24,9 @@ public class Firebase {
         mDatabase.child(userID).child("latitude").setValue(latitude);
     }
 
-    public void retrieveFriendLocation(final String userID) {
+    public void retrieveFriendLocation(final String userID, final Map pointer) {
         Firebase.retrieveID = userID;
+        Firebase.mapPointer = pointer;
         mDatabase.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -38,6 +40,7 @@ public class Firebase {
                         double longitude = (Double) userData.get("longitude");
                         Friend.setObj(id, latitude, longitude);
                 }
+                Firebase.mapPointer.actualGetFriends(Friend.getObj());
             }
 
             @Override

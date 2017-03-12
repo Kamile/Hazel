@@ -242,9 +242,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         ).executeAsync();
     }
 
-    protected void getFriends(String id) {
-        firebase.retrieveFriendLocation(id);
-        JSONObject friendData = Friend.getObj();
+    public void actualGetFriends(JSONObject friendData) {
+        System.out.println("actualGetFriends");
+        System.out.println(friendData);
         try {
             LatLng coordinates = new LatLng((double)friendData.get("latitude"),(double)friendData.get("longitude"));
             mMap.addMarker(new MarkerOptions()
@@ -254,7 +254,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         } catch (JSONException e) {
             System.err.println("Failure to read JSON object for friend's location. ");
         }
-
+    }
+    protected void getFriends(String id) {
+        firebase.retrieveFriendLocation(id, this);
     }
 
     protected void displayNearbyEvents() {
