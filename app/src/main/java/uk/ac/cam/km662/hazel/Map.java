@@ -38,7 +38,15 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+
+import static android.icu.text.DateTimePatternGenerator.DAY;
+import static java.util.Calendar.DAY_OF_MONTH;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
+import static java.util.Calendar.getInstance;
 
 public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -57,6 +65,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
     private Boolean showFriends = true;
     private Boolean showEvents = true;
+    //0 = all time, 1 = today, 2 = this week
+    private int timePeriod = 0;
+    Calendar date = getInstance();
 
     private Firebase firebase;
 
@@ -93,14 +104,27 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                         showFriends = true;
                         showEvents = false;
                         break;
+                    case 2:
+                        System.out.println("Events & Friends..");
+                        showFriends = true;
+                        showEvents = true;
+                        break;
                     case 3:
+                        System.out.println("Today's events");
+                        timePeriod  = 1;
+                        break;
+                    case 4:
+                        System.out.println("This week's events");
+                        timePeriod = 2;
+                    case 5:
+                        System.out.println("All time's events");
+                        timePeriod = 0;
+                        break;
+                    case 7:
                         System.out.println("Logout");
                         finish();
                         break;
                     default:
-                        System.out.println("Events & Friends..");
-                        showFriends = true;
-                        showEvents = true;
                         break;
                 }
                 displayNearbyEvents();
@@ -128,9 +152,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         }
 
     }
-
-
-
 
     /**
      * Manipulates the map once available.
@@ -189,7 +210,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                                     location.getDouble("latitude"), location.getDouble("longitude"),
                                     time);
 
-                            if (event.isValidEvent()) {
+                            if ((timePeriod == 0 && event.isValidEvent())
+                                    || (timePeriod == 1 && event.isValidEvent(date.get(YEAR), date.get(MONTH), date.get(DAY_OF_MONTH)))
+                                    || (timePeriod == 2 && event.isEventThisWeek())) {
                                 events.add(event);
                                 LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
 
@@ -198,8 +221,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                                         .position(coordinates)
                                         .title(event.getName())
                                         .snippet(new SimpleDateFormat("EEE MMM d yyyy, K:mm a").format(event.getTime()))
-
-
                                 );
                                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                                     @Override
@@ -350,7 +371,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
 
     protected void displayNearbyCheckIns() {
-        System.out.println("!!Calling CheckIns!!");
         getCheckIns("me");
     }
 
