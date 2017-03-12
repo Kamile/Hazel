@@ -4,26 +4,18 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -38,10 +30,6 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,7 +49,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
     private HashMap<String, String> eventMappings = new HashMap<String, String>();
 
-    private Firebase database;
 
     private DrawerLayout mDrawerLayout;
     private String[] mOptions;
@@ -70,19 +57,20 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private Boolean showFriends = true;
     private Boolean showEvents = true;
 
+    private Firebase firebase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_map);
 
-        // Create instance of database
-        database = new Firebase();
-
         // Build Drawer for settings
         mOptions = getResources().getStringArray(R.array.nav_item_list);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        firebase = new Firebase();
 
         // Set the adapter for the list view
         mDrawerList.setAdapter(new ArrayAdapter<String>(this,
@@ -119,10 +107,14 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         });
 
 
+
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
 
         // Create an instance of GoogleAPIClient.
         if (mGoogleApiClient == null) {
@@ -134,6 +126,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         }
 
     }
+
+
+
 
     /**
      * Manipulates the map once available.
@@ -154,7 +149,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 System.out.println("last location 1");
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-                Firebase.updateFriendLocation(ProfilePull.getUserID(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                firebase.updateFriendLocation(ProfilePull.getUserID(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
             }
 
         } else {
@@ -164,6 +159,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         displayNearbyEvents();
         displayNearbyCheckIns();
     }
+
+
 
     final GraphRequest.Callback graphCallback = new GraphRequest.Callback(){
         @Override
@@ -221,6 +218,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 e.printStackTrace();
             }
 
+
             GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
             if (nextRequest != null) {
                 nextRequest.setGraphPath(parameters.getString("url"));
@@ -230,6 +228,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             }
         }
     };
+
+
+
 
     protected void getEvents(String id) {
         String url = "/"+id+"/events";
@@ -246,10 +247,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         ).executeAsync();
     }
 
+
+
+
     protected void getFriends(String id) {
-        database.retrieveFriendLocation(id);
-        Friend friend = new Friend();
-        JSONObject friendData = friend.getObj();
+        firebase.retrieveFriendLocation(id);
+        JSONObject friendData = Friend.getObj();
         try {
             LatLng coordinates = new LatLng((double)friendData.get("latitude"),(double)friendData.get("longitude"));
             mMap.addMarker(new MarkerOptions()
@@ -304,12 +307,13 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                             if(checkIns.contains(event)){
                                 CheckIn c = checkIns.get(checkIns.indexOf(event));
                                 c.count++;
-                            } else
+                            } else {
                                 checkIns.add(event);
+                            }
                             LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
                             mMap.addMarker(new MarkerOptions()
                                     .position(coordinates)
-                                    .title(event.getName() + "///" +"Visits: "+ event.count)
+                                    .title(event.getName() + "/n" +"Visits: "+ event.count)
                             );
                         }
                     }
@@ -376,11 +380,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {
-            System.out.println("last location 2");
             // Move camera to last known location
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
-            Firebase.updateFriendLocation(ProfilePull.getUserID(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            firebase.updateFriendLocation(ProfilePull.getUserID(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            System.out.println("Update current user position: " + mLastLocation.getLatitude() + " " + mLastLocation.getLongitude());
         }
     }
 
