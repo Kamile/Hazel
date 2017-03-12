@@ -288,7 +288,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject obj = result.getJSONObject(i);
-                    System.out.println("^^^"+obj);
                     if(!obj.isNull("place")) {
                         JSONObject place = obj.getJSONObject("place");
                         if(!place.isNull("location")) {
@@ -331,7 +330,6 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         parameters.putString("tag_url", url);
         parameters.putString("limit", "10");
 
-        System.out.println("!!Executing CheckIns!!");
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 url,
