@@ -165,18 +165,21 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject obj = result.getJSONObject(i);
                     if(!obj.isNull("place")) {
+                        JSONObject place = obj.getJSONObject("place");
                         String time = null;
                         if (!obj.isNull("start_time"))
                             time = obj.getString("start_time");
-                        JSONObject location = obj.getJSONObject("place").getJSONObject("location");
-                        Event event = new Event(obj.getString("id"), obj.getString("name"),
-                                location.getDouble("latitude"), location.getDouble("longitude"),
-                                time);
+                        if(!place.isNull("location")) {
+                            JSONObject location = place.getJSONObject("location");
+                            Event event = new Event(obj.getString("id"), obj.getString("name"),
+                                    location.getDouble("latitude"), location.getDouble("longitude"),
+                                    time);
 
-                        if (event.isValidEvent()) {
-                            events.add(event);
-                            LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
-                            mMap.addMarker(new MarkerOptions().position(coordinates).title("Event"));
+                            if (event.isValidEvent()) {
+                                events.add(event);
+                                LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
+                                mMap.addMarker(new MarkerOptions().position(coordinates).title("Event"));
+                            }
                         }
                     }
                 }
@@ -210,22 +213,24 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     }
 
     protected void displayNearbyEvents() {
+        System.out.println("display");
         getEvents("me");
+        System.out.println("display2");
         JSONArray friendList = null;
-        while(friendList == null) {
-            System.out.print("**WHILE**");
-            friendList = ProfilePull.getFriends();
-        }
-        System.out.println("&&&");
-        for(int index=0; index<friendList.length(); index++){
-            try {
-                JSONObject friend = friendList.getJSONObject(index);
-                String id = friend.getString("id");
-                getEvents(id);
-            } catch(JSONException e){
-                e.printStackTrace();
-            }
-        }
+//        while(friendList == null) {
+//            System.out.print("**WHILE**");
+//            friendList = ProfilePull.getFriends();
+//        }
+//        System.out.println("&&&");
+//        for(int index=0; index<friendList.length(); index++){
+//            try {
+//                JSONObject friend = friendList.getJSONObject(index);
+//                String id = friend.getString("id");
+//                getEvents(id);
+//            } catch(JSONException e){
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     @Override
