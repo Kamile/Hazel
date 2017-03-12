@@ -117,7 +117,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         @Override
         public void onCompleted(GraphResponse response) {
             Bundle parameters = new Bundle();
-            parameters.putString("limit", "25");
+            parameters.putString("limit", "40");
             System.out.println("EVENT _______ " + response);
             JSONObject jObj = response.getJSONObject();
             try {
@@ -128,11 +128,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     Event event = new Event(obj.getString("id"), obj.getString("name"),
                             location.getDouble("latitude"), location.getDouble("longitude"),
                             obj.getString("start_time"));
-                    events.add(event);
 
-                    LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
-                    mMap.addMarker(new MarkerOptions().position(location2).title("Event"));
-
+                    if(event.isValidEvent()) {
+                        events.add(event);
+                        LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(location2).title("Event"));
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -151,7 +152,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     protected void getEvents() {
         String url = "/me/events";
         Bundle parameters = new Bundle();
-        parameters.putString("limit", "25");
+        parameters.putString("limit", "40");
 
         new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
