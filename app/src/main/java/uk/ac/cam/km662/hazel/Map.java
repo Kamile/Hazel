@@ -271,7 +271,8 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             LatLng coordinates = new LatLng((double)friendData.get("latitude"),(double)friendData.get("longitude"));
             mMap.addMarker(new MarkerOptions()
                     .position(coordinates)
-                    .title(userName) //TODO -- get name + photo
+                    .title(userName)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.pin_friend))
             );
         } catch (JSONException e) {
             System.err.println("Failure to read JSON object for friend's location. ");
