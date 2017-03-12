@@ -17,7 +17,6 @@ public class Firebase {
         mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
-
     public void updateFriendLocation(String userID, double latitude, double longitude) {
         System.out.println("updating values for user " + userID);
         mDatabase.child(userID).child("longitude").setValue(longitude);
@@ -25,25 +24,19 @@ public class Firebase {
     }
 
     public void retrieveFriendLocation(final String userID) {
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        Firebase.retrieveID = userID;
+        mDatabase.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 System.out.println(dataSnapshot);
-
-                JSONObject userData = (JSONObject) ((HashMap) dataSnapshot.getValue()).get(userID);
-                System.out.println(userData);
+                String id = Firebase.retrieveID;
+                HashMap userData = (HashMap)  dataSnapshot.getValue();
 
                 if (userData!=null) {
-                    try {
-                        double latitude = Double.parseDouble(userData.getString("latitude"));
-                        double longitude = Double.parseDouble(userData.getString("longitude"));
-                        Friend.setObj(userID, latitude, longitude);
-
-                    } catch (JSONException e) {
-                        System.err.println("Couldn't get friend location data.");
-                    }
-
+                        double latitude = (Double) userData.get("latitude");
+                        double longitude = (Double) userData.get("longitude");
+                        Friend.setObj(id, latitude, longitude);
                 }
             }
 
