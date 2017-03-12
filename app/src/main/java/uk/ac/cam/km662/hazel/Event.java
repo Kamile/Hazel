@@ -4,10 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by singhaniasnigdha on 11/3/2017.
- */
-
 public class Event {
     private String id, name;
     double latitude, longitude;

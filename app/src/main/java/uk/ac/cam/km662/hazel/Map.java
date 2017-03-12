@@ -84,24 +84,26 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 switch(position) {
+                    //clear map
                     case 0:
                         System.out.println("Events Only..");
                         type = 1;
+                        //displayNearbyEvents();
                         break;
                     case 1:
                         System.out.println("Friends Only..");
                         type = 2;
-                        break;
-                    case 2:
-                        System.out.println("Events & Friends..");
-                        type = 0;
+                        //displayNearbyFriends();
                         break;
                     case 3:
                         System.out.println("Logout");
+                        finish();
                         break;
                     default:
-                        System.out.println("All");
+                        System.out.println("Events & Friends..");
                         type = 0;
+                        //displayNearbyEvents()
+                        //displayNearbyFriends()
                         break;
                 }
             }
@@ -147,32 +149,34 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         } else {
             // Show rationale and request permission.
         }
-
-        // Get user's events and plot their locations on map
-        getEvents();
-
+        // get user's events and plot their locations on map
+        displayNearbyEvents();
     }
 
     final GraphRequest.Callback graphCallback = new GraphRequest.Callback(){
         @Override
         public void onCompleted(GraphResponse response) {
             Bundle parameters = new Bundle();
-            parameters.putString("limit", "40");
-            System.out.println("EVENT _______ " + response);
+            parameters.putString("limit", "10");
             JSONObject jObj = response.getJSONObject();
             try {
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject obj = result.getJSONObject(i);
-                    JSONObject location = obj.getJSONObject("place").getJSONObject("location");
-                    Event event = new Event(obj.getString("id"), obj.getString("name"),
-                            location.getDouble("latitude"), location.getDouble("longitude"),
-                            obj.getString("start_time"));
-                    events.add(event);
-                    if(event.isValidEvent()) {
-                        events.add(event);
-                        LatLng location2 = new LatLng(event.getLatitude(), event.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(location2).title(event.getName()));
+                    if(!obj.isNull("place")) {
+                        String time = null;
+                        if (!obj.isNull("start_time"))
+                            time = obj.getString("start_time");
+                        JSONObject location = obj.getJSONObject("place").getJSONObject("location");
+                        Event event = new Event(obj.getString("id"), obj.getString("name"),
+                                location.getDouble("latitude"), location.getDouble("longitude"),
+                                time);
+
+                        if (event.isValidEvent()) {
+                            events.add(event);
+                            LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
+                            mMap.addMarker(new MarkerOptions().position(coordinates).title("Event"));
+                        }
                     }
                 }
             } catch (JSONException e) {
@@ -181,7 +185,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
             GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
             if (nextRequest != null) {
-                nextRequest.setGraphPath("/me/events");
+                nextRequest.setGraphPath(parameters.getString("url"));
                 nextRequest.setCallback(this);
                 nextRequest.setParameters(parameters);
                 nextRequest.executeAsync();
@@ -189,10 +193,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         }
     };
 
-    protected void getEvents() {
-        String url = "/me/events";
+    protected void getEvents(String id) {
+        String url = "/"+id+"/events";
         Bundle parameters = new Bundle();
-        parameters.putString("limit", "40");
+        parameters.putString("url", url);
+        parameters.putString("limit", "10");
 
         new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
@@ -201,6 +206,20 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     HttpMethod.GET,
                     graphCallback
             ).executeAsync();
+    }
+
+    protected void displayNearbyEvents() {
+        getEvents("me");
+        JSONArray friendList = ProfilePull.getFriends();
+        for(int index=0; index<friendList.length(); index++){
+            try {
+                JSONObject friend = friendList.getJSONObject(index);
+                String id = friend.getString("id");
+                getEvents(id);
+            } catch(JSONException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
