@@ -284,17 +284,20 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             Bundle parameters = new Bundle();
             parameters.putString("limit", "10");
             JSONObject jObj = response.getJSONObject();
-            System.out.println("^^^"+jObj);
             try {
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject obj = result.getJSONObject(i);
-
+                    System.out.println("^^^"+obj);
                     if(!obj.isNull("place")) {
                         JSONObject place = obj.getJSONObject("place");
                         if(!place.isNull("location")) {
                             JSONObject location = place.getJSONObject("location");
-                            final CheckIn event = new CheckIn(obj.getString("name"),
+                            String name = " ";
+                            if(!obj.isNull("name")){
+                                name = obj.getString("name");
+                            }
+                            CheckIn event = new CheckIn(name,
                                     location.getDouble("latitude"), location.getDouble("longitude"));
 
                             if(! checkIns.contains(event)){
@@ -319,16 +322,16 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 nextRequest.setParameters(parameters);
                 nextRequest.executeAsync();
             }
-            System.out.println("****"+checkIns);
         }
     };
 
     protected void getCheckIns(String id) {
-        String url = "/me/tagged_places";
+        String url = "/"+id+"/tagged_places";
         Bundle parameters = new Bundle();
         parameters.putString("tag_url", url);
         parameters.putString("limit", "10");
 
+        System.out.println("!!Executing CheckIns!!");
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
                 url,
@@ -340,6 +343,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
 
     protected void displayNearbyCheckIns() {
+        System.out.println("!!Calling CheckIns!!");
         getCheckIns("me");
     }
 
