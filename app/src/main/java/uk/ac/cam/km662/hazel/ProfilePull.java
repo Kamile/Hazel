@@ -19,12 +19,33 @@ import java.util.concurrent.SynchronousQueue;
 
 public class ProfilePull {
     private static JSONArray friends;
+    private static String userID;
 
+    public static String getUserID() { return ProfilePull.userID; }
     //friends
     public static JSONArray getFriends() {
         return ProfilePull.friends;
     }
     public static void getProfile() {
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/me",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                        try {
+                            System.out.println(response);
+                            String tmpProfile = (String) response.getJSONObject().get("id");
+                            System.out.println(tmpProfile);
+                            ProfilePull.userID = tmpProfile;
+                        }
+                        catch (JSONException e) {
+                            System.err.println(e);
+                        }
+                    }
+                }
+        ).executeAsync();
             new GraphRequest(
                     AccessToken.getCurrentAccessToken(),
                     "/me/friends",

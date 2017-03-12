@@ -143,8 +143,10 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
             if (mLastLocation != null) {
+                System.out.println("last location 1");
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
                 mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+                Firebase.updateFriendLocation(ProfilePull.getUserID(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
             }
 
         } else {
@@ -246,9 +248,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
                 mGoogleApiClient);
         if (mLastLocation != null) {
+            System.out.println("last location 2");
             // Move camera to last known location
             mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+            Firebase.updateFriendLocation(ProfilePull.getUserID(), mLastLocation.getLatitude(), mLastLocation.getLongitude());
         }
     }
 

@@ -10,6 +10,8 @@ import com.google.firebase.database.*;
 
 import org.json.JSONObject;
 
+import java.util.HashMap;
+
 public class Firebase {
     public static FirebaseDatabase database = FirebaseDatabase.getInstance();
     public static void tryDB() {
@@ -27,10 +29,17 @@ public class Firebase {
     }
 
     public static void retrieveFriendLocation(String userID) {
+        System.out.println("retrieveFriendLocation");
         database.getReference().child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 System.out.println(dataSnapshot);
+                System.out.println(dataSnapshot.getKey());
+                String id = dataSnapshot.getKey();
+                double latitude = (Long)((HashMap)dataSnapshot.getValue()).get("latitude");
+                double longitude = (Long)((HashMap)dataSnapshot.getValue()).get("longitude");
+                HashMap loc = (HashMap) dataSnapshot.getValue();
+                SharedObj.setObj(id, latitude, longitude);
             }
 
             @Override
