@@ -56,6 +56,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     final ArrayList<Event> events = new ArrayList<Event>();
+    final ArrayList<CheckIn> checkIns = new ArrayList<CheckIn>();
     private Firebase database;
 
     private DrawerLayout mDrawerLayout;
@@ -64,7 +65,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
     private Boolean showFriends = true;
     private Boolean showEvents = true;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -184,14 +185,11 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                                 events.add(event);
                                 LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
 
-
-
-
                                 mMap.addMarker(new MarkerOptions()
                                         .position(coordinates)
                                         .title(event.getName() + "///" + event.getID())
                                         .snippet(new SimpleDateFormat("EEE MMM d yyyy, K:mm a").format(event.getTime()))
-                                        
+
 
                                 );
                                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
@@ -228,12 +226,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         parameters.putString("limit", "10");
 
         new GraphRequest(
-                    AccessToken.getCurrentAccessToken(),
-                    url,
-                    parameters,
-                    HttpMethod.GET,
-                    graphCallback
-            ).executeAsync();
+                AccessToken.getCurrentAccessToken(),
+                url,
+                parameters,
+                HttpMethod.GET,
+                graphCallback
+        ).executeAsync();
     }
 
     protected void getFriends(String id) {
@@ -246,13 +244,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     .position(coordinates)
                     .title("A friend") //TODO -- get name + photo
             );
-
         } catch (JSONException e) {
             System.err.println("Failure to real JSON object for friend's location. ");
         }
-
-
-
     }
 
     protected void displayNearbyEvents() {
@@ -268,11 +262,86 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                 if (showEvents) {
                     getEvents(id);
                 }
-
                 if (showFriends) {
                     getFriends(id);
                 }
+            } catch(JSONException e){
+                e.printStackTrace();
+            }
+        }
+    }
 
+    final GraphRequest.Callback graphCallbackCheckIn = new GraphRequest.Callback(){
+        @Override
+        public void onCompleted(GraphResponse response) {
+            Bundle parameters = new Bundle();
+            parameters.putString("limit", "10");
+            JSONObject jObj = response.getJSONObject();
+            try {
+                JSONArray result = jObj.getJSONArray("data");
+                for (int i = 0; i < result.length(); i++) {
+                    JSONObject obj = result.getJSONObject(i);
+                    if(!obj.isNull("place")) {
+                        JSONObject place = obj.getJSONObject("place");
+                        if(!place.isNull("location")) {
+                            JSONObject location = place.getJSONObject("location");
+                            final CheckIn event = new CheckIn(obj.getString("name"),
+                                    location.getDouble("latitude"), location.getDouble("longitude"));
+
+                            if(checkIns.contains(event)){
+                                CheckIn c = checkIns.get(checkIns.indexOf(event));
+                                c.count++;
+                            } else
+                                checkIns.add(event);
+                            LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(coordinates)
+                                    .title(event.getName() + "///" +"Visits: "+ event.count)
+                            );
+                        }
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            GraphRequest nextRequest = response.getRequestForPagedResults(GraphResponse.PagingDirection.NEXT);
+            if (nextRequest != null) {
+                nextRequest.setGraphPath(parameters.getString("tag_url"));
+                nextRequest.setCallback(this);
+                nextRequest.setParameters(parameters);
+                nextRequest.executeAsync();
+            }
+        }
+    };
+
+    protected void getCheckIns(String id) {
+        String url = "/"+id+"/tagged_places";
+        Bundle parameters = new Bundle();
+        parameters.putString("tag_url", url);
+        parameters.putString("limit", "10");
+
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                url,
+                parameters,
+                HttpMethod.GET,
+                graphCallbackCheckIn
+        ).executeAsync();
+    }
+
+
+    protected void displayNearbyCheckIns() {
+        getCheckIns("me");
+        JSONArray friendList = null;
+        while(friendList == null) {
+            friendList = ProfilePull.getFriends();
+        }
+        for(int index=0; index<friendList.length(); index++){
+            try {
+                JSONObject friend = friendList.getJSONObject(index);
+                String id = friend.getString("id");
+                getCheckIns(id);
             } catch(JSONException e){
                 e.printStackTrace();
             }
