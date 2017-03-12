@@ -8,6 +8,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 
 public class Firebase {
+    private static String retrieveID;
+    public static FirebaseDatabase database = FirebaseDatabase.getInstance();
+
     private DatabaseReference mDatabase;
 
     public Firebase() {
