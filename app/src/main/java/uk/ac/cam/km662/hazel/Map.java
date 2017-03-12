@@ -3,6 +3,7 @@ package uk.ac.cam.km662.hazel;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -210,7 +211,12 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
 
     protected void displayNearbyEvents() {
         getEvents("me");
-        JSONArray friendList = ProfilePull.getFriends();
+        JSONArray friendList = null;
+        while(friendList == null) {
+            System.out.print("**WHILE**");
+            friendList = ProfilePull.getFriends();
+        }
+        System.out.println("&&&");
         for(int index=0; index<friendList.length(); index++){
             try {
                 JSONObject friend = friendList.getJSONObject(index);
