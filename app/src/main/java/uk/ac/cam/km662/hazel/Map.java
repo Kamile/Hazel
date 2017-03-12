@@ -213,24 +213,22 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     }
 
     protected void displayNearbyEvents() {
-        System.out.println("display");
         getEvents("me");
-        System.out.println("display2");
         JSONArray friendList = null;
-//        while(friendList == null) {
-//            System.out.print("**WHILE**");
-//            friendList = ProfilePull.getFriends();
-//        }
-//        System.out.println("&&&");
-//        for(int index=0; index<friendList.length(); index++){
-//            try {
-//                JSONObject friend = friendList.getJSONObject(index);
-//                String id = friend.getString("id");
-//                getEvents(id);
-//            } catch(JSONException e){
-//                e.printStackTrace();
-//            }
-//        }
+        while(friendList == null) {
+            System.out.print("**WHILE**");
+            friendList = ProfilePull.getFriends();
+        }
+        System.out.println("&&&");
+        for(int index=0; index<friendList.length(); index++){
+            try {
+                JSONObject friend = friendList.getJSONObject(index);
+                String id = friend.getString("id");
+                getEvents(id);
+            } catch(JSONException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
