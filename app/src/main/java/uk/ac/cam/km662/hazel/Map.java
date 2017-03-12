@@ -49,6 +49,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -57,6 +58,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
     private Location mLastLocation;
     final ArrayList<Event> events = new ArrayList<Event>();
     final ArrayList<CheckIn> checkIns = new ArrayList<CheckIn>();
+
+    private HashMap<String, String> eventMappings = new HashMap<String, String>();
+
     private Firebase database;
 
     private DrawerLayout mDrawerLayout;
@@ -167,14 +171,20 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
             parameters.putString("limit", "10");
             JSONObject jObj = response.getJSONObject();
             try {
+
                 JSONArray result = jObj.getJSONArray("data");
                 for (int i = 0; i < result.length(); i++) {
+
                     JSONObject obj = result.getJSONObject(i);
                     if(!obj.isNull("place")) {
+
                         JSONObject place = obj.getJSONObject("place");
                         String time = null;
-                        if (!obj.isNull("start_time"))
+
+                        if (!obj.isNull("start_time")) {
                             time = obj.getString("start_time");
+                        }
+
                         if(!place.isNull("location")) {
                             JSONObject location = place.getJSONObject("location");
                             final Event event = new Event(obj.getString("id"), obj.getString("name"),
@@ -185,9 +195,10 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                                 events.add(event);
                                 LatLng coordinates = new LatLng(event.getLatitude(), event.getLongitude());
 
+                                eventMappings.put(event.getName(), event.getID());
                                 mMap.addMarker(new MarkerOptions()
                                         .position(coordinates)
-                                        .title(event.getName() + "///" + event.getID())
+                                        .title(event.getName())
                                         .snippet(new SimpleDateFormat("EEE MMM d yyyy, K:mm a").format(event.getTime()))
 
 
@@ -196,7 +207,7 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                                     @Override
                                     public void onInfoWindowClick(Marker marker) {
                                         Intent intent = new Intent(getApplicationContext(), EventPage.class);
-                                        String eventID = marker.getTitle().split("///")[1];
+                                        String eventID = eventMappings.get(marker.getTitle());
                                         intent.putExtra("eventID", eventID);
                                         startActivity(intent);
                                     }
@@ -245,8 +256,9 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
                     .title("A friend") //TODO -- get name + photo
             );
         } catch (JSONException e) {
-            System.err.println("Failure to real JSON object for friend's location. ");
+            System.err.println("Failure to read JSON object for friend's location. ");
         }
+
     }
 
     protected void displayNearbyEvents() {
@@ -390,11 +402,5 @@ public class Map extends FragmentActivity implements OnMapReadyCallback, GoogleA
         mGoogleApiClient.disconnect();
         super.onStop();
     }
-
-
-
-
-
-
 
 }

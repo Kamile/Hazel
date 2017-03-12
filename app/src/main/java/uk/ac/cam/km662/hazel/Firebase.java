@@ -22,6 +22,7 @@ public class Firebase {
     }
 
     public static void updateFriendLocation(String userID, double latitude, double longitude) {
+        System.out.println("updating values for user " + userID);
         DatabaseReference friendRefLat = Firebase.database.getReference(userID + "/latitude");
         DatabaseReference friendRefLon = Firebase.database.getReference(userID + "/longitude");
         friendRefLat.setValue(latitude);
@@ -36,9 +37,13 @@ public class Firebase {
                 System.out.println(dataSnapshot);
                 System.out.println(dataSnapshot.getKey());
                 String id = dataSnapshot.getKey();
-                double latitude = (Long)((HashMap)dataSnapshot.getValue()).get("latitude");
-                double longitude = (Long)((HashMap)dataSnapshot.getValue()).get("longitude");
-                Friend.setObj(id, latitude, longitude);
+                HashMap<String, String> userData = (HashMap) dataSnapshot.getValue();
+
+                if (userData != null) {
+                    double latitude = (double)((HashMap)dataSnapshot.getValue()).get("latitude");
+                    double longitude = (double)((HashMap)dataSnapshot.getValue()).get("longitude");
+                    Friend.setObj(id, latitude, longitude);
+                }
             }
 
             @Override
