@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "779773669224",
+    "firebase_url": "https://hazel-20cad.firebaseio.com",
+    "project_id": "hazel-20cad",
+    "storage_bucket": "hazel-20cad.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779773669224:android:2d7b3e979197f810",
+        "android_client_info": {
+          "package_name": "uk.ac.cam.km662.hazel"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "779773669224-j6i9tuo3d2tuh1h0cpbtl995pfs43ncu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEexHINW19pmgPRINd5xZhZSVgxwsUKco"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
