@@ -42,7 +42,7 @@ public class Login extends AppCompatActivity {
                 // declined permissions
                 Intent intent = new Intent(Login.this, Map.class);
                 startActivity(intent);
-                //TODO: can't get the profile as soon as it returns
+                System.out.println("profile");
                 ProfilePull.getProfile();
 
 //                Firebase.updateFriendLocation("1", 2, 3);

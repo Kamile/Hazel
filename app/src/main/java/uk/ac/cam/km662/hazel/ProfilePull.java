@@ -33,28 +33,14 @@ public class ProfilePull {
                     new GraphRequest.Callback() {
                         public void onCompleted(GraphResponse response) {
                             try {
-                                /*
-                                System.out.println(response);
-                                System.out.println("1 getJSONObject");
-                                System.out.println(response.getJSONObject());
-                                System.out.println("2 getData");
-                                */
                                 JSONArray tmpFriends = (JSONArray) response.getJSONObject().get("data");
-                                System.out.println(tmpFriends);
-//                                System.out.println(response.getJSONObject().get("data").getClass());
-//                                System.out.println("3 ProfilePull.friends");
-//                                System.out.println(ProfilePull.friends);
                                 ProfilePull.friends = tmpFriends;
-                                System.out.println("4 ProfilePull.friends");
-                                System.out.println(ProfilePull.friends);
-//                                System.out.println("5 ProfilePull.friends ends");
-//                                ProfilePull.friends = response.getJSONObject().get("data");
                             }
                             catch (JSONException e) {
                                     System.err.println(e);
                             }
                         }
                     }
-            );
+            ).executeAsync();
     }
 }
